@@ -13,6 +13,7 @@ export default function ChatApp() {
     const [userData, setUserData] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [chatAppJwt, setChatAppJwt] = useState(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
@@ -39,6 +40,7 @@ export default function ChatApp() {
 
     useEffect(() => {
         if (!chatAppJwt || !userData) return;
+        setLoading(true);
 
         const fetchAllUsers = async () => {
             try {
@@ -49,6 +51,8 @@ export default function ChatApp() {
                 setFilteredUsers(res.data.filter(user => user.id !== userData.id));
             } catch (error) {
                 console.error("Error fetching all users:", error.message);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -97,7 +101,9 @@ export default function ChatApp() {
 
                         {/* User List */}
                         <div className="mt-4 space-y-3">
-                            {filteredUsers.length === 0 ? (
+                            {loading ? (
+                                <p className="text-gray-500">Loading chats...</p>
+                            ) : filteredUsers.length === 0 ? (
                                 <p className="text-gray-500">No users found</p>
                             ) : (
                                 filteredUsers.map((user) => (

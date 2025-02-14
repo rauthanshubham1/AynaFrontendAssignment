@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 
 function Login() {
     const [userData, setUserData] = useState({ email: "", password: "" });
+    const [loading, setLoading] = useState(false); // Track the loading state
     const router = useRouter();
 
     useEffect(() => {
@@ -24,11 +25,9 @@ function Login() {
                 }
             } catch (error) {
                 console.log('An error occurred:', error.message);
-
             }
         };
         checkUser();
-
     }, []);
 
     const handleChange = (e) => {
@@ -39,6 +38,7 @@ function Login() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true); // Set loading to true when login starts
         try {
             const res = await axios
                 .post(`${process.env.NEXT_PUBLIC_BACKEND}/api/auth/local`, {
@@ -54,6 +54,8 @@ function Login() {
             }
         } catch (err) {
             alert("Invalid Credentials");
+        } finally {
+            setLoading(false); // Reset loading state after the request is complete
         }
     }
 
@@ -94,6 +96,10 @@ function Login() {
                         <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                             Login
                         </button>
+
+                        {loading && (
+                            <p className="mt-4 text-center text-gray-500">Logging In, server can be inactive due to inactivity, it could take time...</p>
+                        )}
 
                         <div className="mt-4 text-center">
                             <p className="text-gray-700">Don't have an account? <Link href="/signup" className="text-indigo-600">Sign up</Link></p>

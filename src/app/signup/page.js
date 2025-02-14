@@ -5,23 +5,25 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 
-
 function Signup() {
   const [userData, setUserData] = useState({ email: "", username: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const chat_app_jwt = localStorage.getItem("chat_app_jwt")
+        const chat_app_jwt = localStorage.getItem("chat_app_jwt");
+        if (!chat_app_jwt) return;
+
         const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND}/api/users/me`, {
           headers: {
             Authorization: `Bearer ${chat_app_jwt}`,
           },
         });
 
-        if (res.status == 200) {
-          router.push(`/user/${res.data.id}`)
+        if (res.status === 200) {
+          router.push(`/user/${res.data.id}`);
         }
       } catch (error) {
         console.log('An error occurred:', error.message);
@@ -34,28 +36,30 @@ function Signup() {
     let name = e.target.name;
     let value = e.target.value;
     setUserData({ ...userData, [name]: value });
-  }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
-      const res = await axios
-        .post(`${process.env.NEXT_PUBLIC_BACKEND}/api/auth/local/register`, {
-          username: userData.username,
-          email: userData.email,
-          password: userData.password,
-        })
-      if (res.status == 200) {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND}/api/auth/local/register`, {
+        username: userData.username,
+        email: userData.email,
+        password: userData.password,
+      });
+
+      if (res.status === 200) {
         console.log("User successfully registered");
-        router.push("/login")
+        router.push("/login");
       } else {
         console.log("User registration failed");
       }
     } catch (err) {
       console.log("Error during registration:", err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -104,12 +108,24 @@ function Signup() {
               />
             </div>
 
-            <button type="submit" className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-              Sign Up
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              disabled={loading}
+            >
+              {loading ? "Signing Up..." : "Sign Up"}
             </button>
 
+            {loading && (
+              <p className="mt-2 text-sm text-center text-gray-600">
+                Signing Up, server can be inactive due to inactivity, it could take time.
+              </p>
+            )}
+
             <div className="mt-4 text-center">
-              <p className="text-black">Already have an account? <Link href="/login" className="text-indigo-600">Login</Link></p>
+              <p className="text-black">
+                Already have an account? <Link href="/login" className="text-indigo-600">Login</Link>
+              </p>
             </div>
           </form>
         </div>

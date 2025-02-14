@@ -1,9 +1,21 @@
-import React from 'react'
+"use client"
+import React, { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import Loading from "./loading.gif"
 
-const page = () => {
+const Page = () => {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.push("/login");
+  }, []);
+
   return (
-    <div>Home page</div>
-  )
+    <div className="flex items-center justify-center h-screen">
+      <Image src={Loading} alt="Loading..."  priority/>
+    </div>
+  );
 }
 
-export default page
+export default Page;
